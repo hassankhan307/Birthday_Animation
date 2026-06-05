@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Happy birthday</title>
-    <link rel="stylesheet" href="style.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prefixfree/1.0.7/prefixfree.min.js"></script>
-  </head>
-  <body>
-    <canvas id="c"></canvas>
-    <p>
-      
-    </p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Birthday ✨</title>
 
-    <script src="script.js"></script>
-  </body>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Canvas animation layer -->
+  <canvas id="c"></canvas>
+
+  <!-- UI Overlay layer  -->
+  <div class="overlay">
+    <h1 id="title"></h1>
+    <p id="message"></p>
+
+    <button id="revealBtn">Open Surprise</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>
