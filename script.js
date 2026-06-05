@@ -12,44 +12,39 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-// =======================
-// 🎨 CORE VISUAL SYSTEM
-// =======================
-
-const palette = ["#00e5ff", "#8b5cf6", "#ff2bd6", "#00ff85", "#ffffff"];
+// =========================
+// 🎮 GAME STATE SYSTEM
+// =========================
+let state = "idle"; 
+// idle → reveal → explosion → message → loop
 
 let time = 0;
-let scene = 0;
-let shake = 0;
+let particles = [];
 
-// 🌌 STARFIELD (depth layers)
-const stars = Array.from({ length: 300 }, () => ({
+// =========================
+// 🌌 STARS
+// =========================
+const stars = Array.from({ length: 180 }, () => ({
   x: Math.random() * w,
   y: Math.random() * h,
-  z: Math.random(),
-  r: Math.random() * 1.5,
+  s: Math.random() * 1.5
 }));
 
-// =======================
-// 🎬 SCENE DIRECTOR
-// =======================
-// 0 = build-up
-// 1 = glitch
-// 2 = explosion
-// 3 = formation
-// 4 = climax hold
-// =======================
+// =========================
+// 🎨 COLORS
+// =========================
+const colors = ["#00e5ff", "#8b5cf6", "#ff2bd6", "#00ff85"];
 
-// =======================
-// 💥 PARTICLE SYSTEM
-// =======================
+// =========================
+// 💥 PARTICLE
+// =========================
 class Particle {
   constructor(x, y, color) {
     this.x = x;
     this.y = y;
-    this.vx = (Math.random() - 0.5) * 6;
-    this.vy = (Math.random() - 0.5) * 6;
-    this.life = 100 + Math.random() * 50;
+    this.vx = (Math.random() - 0.5) * 8;
+    this.vy = (Math.random() - 0.5) * 8;
+    this.life = 120;
     this.color = color;
   }
 
@@ -61,128 +56,65 @@ class Particle {
 
     ctx.shadowBlur = 20;
     ctx.shadowColor = this.color;
+
+    ctx.globalAlpha = this.life / 120;
     ctx.fillStyle = this.color;
 
-    ctx.globalAlpha = this.life / 150;
-
     ctx.beginPath();
-    ctx.arc(this.x, this.y, 2.2, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.globalAlpha = 1;
   }
 }
 
-let particles = [];
-
-// =======================
-// ✨ LETTER SYSTEM
-// =======================
+// =========================
+// 🎯 LETTERS
+// =========================
 function Letter(char, x, y) {
   this.char = char;
   this.x = x;
   this.y = y;
-
-  this.baseX = x;
-  this.baseY = y;
-
-  this.color = palette[(Math.random() * palette.length) | 0];
+  this.color = colors[Math.random() * colors.length | 0];
 }
 
-Letter.prototype.update = function () {
-
-  const shakeX = (Math.random() - 0.5) * shake;
-  const shakeY = (Math.random() - 0.5) * shake;
+Letter.prototype.draw = function () {
 
   ctx.shadowBlur = 25;
   ctx.shadowColor = this.color;
 
-  // =========================
-  // 🎬 SCENE 0: BUILD-UP
-  // =========================
-  if (scene === 0) {
-    let offset = Math.sin(time * 0.02) * 10;
-
-    ctx.fillStyle = this.color;
-    ctx.globalAlpha = 0.6;
-
-    ctx.fillText(
-      this.char,
-      this.x + shakeX,
-      this.y + shakeY + offset
-    );
+  if (state === "idle") {
+    ctx.fillStyle = "#444";
   }
 
-  // =========================
-  // 🎬 SCENE 1: GLITCH ENTRY
-  // =========================
-  else if (scene === 1) {
-    let glitch = (Math.random() - 0.5) * 6;
-
+  if (state === "reveal") {
     ctx.fillStyle = this.color;
-
-    ctx.fillText(
-      this.char,
-      this.x + glitch + shakeX,
-      this.y + shakeY
-    );
   }
 
-  // =========================
-  // 🎬 SCENE 2: EXPLOSION PHASE
-  // =========================
-  else if (scene === 2) {
-
-    ctx.fillStyle = this.color;
-
-    // spawn particles once
-    if (Math.random() < 0.15) {
-      particles.push(
-        new Particle(this.x + hw, this.y + hh, this.color)
-      );
+  if (state === "explosion") {
+    if (Math.random() < 0.2) {
+      particles.push(new Particle(this.x + hw, this.y + hh, this.color));
     }
   }
 
-  // =========================
-  // 🎬 SCENE 3: FORMATION
-  // =========================
-  else if (scene === 3) {
-    ctx.fillStyle = this.color;
-
-    ctx.fillText(
-      this.char,
-      this.x + shakeX,
-      this.y + shakeY
-    );
-  }
-
-  // =========================
-  // 🎬 SCENE 4: CLIMAX
-  // =========================
-  else if (scene === 4) {
+  if (state === "message") {
     ctx.fillStyle = "#ffffff";
-
-    ctx.shadowBlur = 60;
-
-    ctx.fillText(
-      this.char,
-      this.x,
-      this.y
-    );
   }
+
+  ctx.fillText(this.char, this.x, this.y);
 };
 
-// =======================
-// 🧠 TEXT SETUP
-// =======================
+// =========================
+// 🎬 TEXT SETUP
+// =========================
 const opts = {
   strings: ["HAPPY", "BIRTHDAY!", "MALAIKA"],
-  charSize: 36,
-  charSpacing: 44,
-  lineHeight: 52,
+  size: 40,
+  spacing: 45,
+  line: 55
 };
 
-ctx.font = opts.charSize + "px Verdana";
+ctx.font = opts.size + "px Arial";
 
 let letters = [];
 
@@ -191,78 +123,64 @@ for (let i = 0; i < opts.strings.length; i++) {
     letters.push(
       new Letter(
         opts.strings[i][j],
-        j * opts.charSpacing -
-          (opts.strings[i].length * opts.charSpacing) / 2,
-        i * opts.lineHeight -
-          (opts.strings.length * opts.lineHeight) / 2
+        j * opts.spacing - 120,
+        i * opts.line - 50
       )
     );
   }
 }
 
-// =======================
-// 🎥 ANIMATION LOOP
-// =======================
+// =========================
+// 🔘 BUTTON CONTROL
+// =========================
+document.getElementById("revealBtn").addEventListener("click", () => {
+  state = "reveal";
+  document.getElementById("title").innerText = "Get ready...";
+  
+  setTimeout(() => state = "explosion", 2000);
+  setTimeout(() => state = "message", 4000);
+  setTimeout(() => state = "idle", 8000);
+});
+
+// =========================
+// 🎥 MAIN LOOP
+// =========================
 function animate() {
   requestAnimationFrame(animate);
 
   time++;
 
-  // 🌌 cinematic fade (motion blur)
-  ctx.fillStyle = "rgba(5, 8, 22, 0.22)";
+  // 🌌 background
+  ctx.fillStyle = "rgba(5, 8, 22, 0.25)";
   ctx.fillRect(0, 0, w, h);
 
-  // 🌠 STAR DEPTH
+  // 🌠 stars
   for (let s of stars) {
-    s.y += 0.3 + s.z * 2;
-
+    s.y += 0.3;
     if (s.y > h) s.y = 0;
 
     ctx.fillStyle = "white";
-    ctx.globalAlpha = 0.2 + s.z;
-
+    ctx.globalAlpha = 0.3;
     ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.arc(s.x, s.y, s.s, 0, Math.PI * 2);
     ctx.fill();
   }
 
   ctx.globalAlpha = 1;
 
-  // 🎬 scene transitions
-  if (time > 200) scene = 1;
-  if (time > 350) scene = 2;
-  if (time > 550) scene = 3;
-  if (time > 750) scene = 4;
-  if (time > 1000) {
-    scene = 0;
-    time = 0;
-    particles = [];
-  }
-
-  // 🎥 camera shake in explosion
-  shake = scene === 2 ? 6 : 0;
-
   ctx.save();
   ctx.translate(hw, hh);
 
-  // letters
   for (let l of letters) {
-    l.update();
+    l.draw();
   }
 
   ctx.restore();
 
-  // 💥 particles (additive bloom)
+  // 💥 particles
   ctx.globalCompositeOperation = "lighter";
-  for (let p of particles) {
-    p.update();
-  }
+  for (let p of particles) p.update();
   ctx.globalCompositeOperation = "source-over";
-
-  // 🔥 fake bloom pass
-  ctx.globalAlpha = 0.06;
-  ctx.drawImage(c, 0, 0, w, h);
-  ctx.globalAlpha = 1;
 }
 
 animate();
