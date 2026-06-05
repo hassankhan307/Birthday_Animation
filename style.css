@@ -1,27 +1,183 @@
+/* ─── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:    #f9c846;
+  --rose:    #ff6b9d;
+  --violet:  #c084fc;
+  --cyan:    #22d3ee;
+  --bg:      #080612;
+  --glass:   rgba(255,255,255,0.06);
+  --glass-border: rgba(255,255,255,0.12);
+  --text:    #f0e6ff;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: 'Playfair Display', Georgia, serif;
+  color: var(--text);
+  cursor: default;
+}
+
+/* ─── Canvases ─────────────────────────────────────────────── */
 canvas {
-	position: absolute;
-	top: 0;
-	left: 0;
+  position: fixed;
+  inset: 0;
+  display: block;
 }
-p {
-	margin: 0 0;
-	position: absolute;
-	font: 16px Verdana;
-	color: #eee;
-	height: 25px;
-	top: calc( 100vh - 30px );
-	text-shadow: 0 0 2px white;
+#c        { z-index: 1; }
+#particles { z-index: 2; pointer-events: none; }
+
+/* ─── Glow orbs (ambient light blobs) ──────────────────────── */
+.glow-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: .35;
+  pointer-events: none;
+  animation: drift 12s ease-in-out infinite alternate;
 }
-p a {
-	text-decoration: none;
-	color: #aaa;
+#glow-orb-1 {
+  width: 500px; height: 500px;
+  top: -150px; left: -150px;
+  background: radial-gradient(circle, var(--violet) 0%, transparent 70%);
+  animation-duration: 14s;
 }
-span {
-	font-size: 11px;
+#glow-orb-2 {
+  width: 400px; height: 400px;
+  bottom: -100px; right: -100px;
+  background: radial-gradient(circle, var(--rose) 0%, transparent 70%);
+  animation-duration: 10s;
+  animation-delay: -5s;
 }
-p > a:first-of-type {
-	font-size: 20px;
+#glow-orb-3 {
+  width: 300px; height: 300px;
+  top: 40%; left: 60%;
+  background: radial-gradient(circle, var(--gold) 0%, transparent 70%);
+  animation-duration: 16s;
+  animation-delay: -8s;
+  opacity: .2;
 }
-body {
-	overflow: hidden;
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(40px, 30px) scale(1.08); }
 }
+
+/* ─── UI Overlay ───────────────────────────────────────────── */
+#ui-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── Top bar ──────────────────────────────────────────────── */
+#top-bar {
+  pointer-events: auto;
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: slideDown .8s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.date-chip {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-family: 'Dancing Script', cursive;
+  font-size: 1.15rem;
+  letter-spacing: .03em;
+  color: var(--gold);
+  text-shadow: 0 0 18px rgba(249,200,70,.6);
+  box-shadow: 0 4px 24px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* ─── Subtitle ─────────────────────────────────────────────── */
+#subtitle-text {
+  margin-top: auto;
+  margin-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  animation: fadeUp 1.2s .4s cubic-bezier(.34,1.56,.64,1) both;
+  pointer-events: none;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.subtitle-line {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(.85rem, 2vw, 1.1rem);
+  font-style: italic;
+  letter-spacing: .06em;
+  color: rgba(240,230,255,.55);
+  text-shadow: 0 2px 12px rgba(0,0,0,.5);
+}
+.subtitle-line.accent {
+  color: rgba(249,200,70,.75);
+  font-size: clamp(.8rem, 1.8vw, 1rem);
+}
+
+/* ─── Bottom controls ──────────────────────────────────────── */
+#bottom-controls {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+  animation: fadeUp .8s .6s both;
+}
+
+.ctrl-btn {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-border);
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: rgba(255,255,255,.7);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .15s, box-shadow .2s, color .2s;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.ctrl-btn svg { width: 18px; height: 18px; }
+.ctrl-btn:hover {
+  background: rgba(255,255,255,.12);
+  transform: scale(1.08);
+  color: #fff;
+  box-shadow: 0 6px 28px rgba(0,0,0,.4);
+}
+.ctrl-btn:active { transform: scale(.95); }
+.ctrl-btn.active {
+  background: rgba(249,200,70,.15);
+  border-color: rgba(249,200,70,.4);
+  color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(249,200,70,.2), 0 4px 20px rgba(0,0,0,.3);
+}
+
+/* ─── Burst confetti flash overlay ────────────────────────── */
+#flash {
+  position: fixed; inset: 0; z-index: 20;
+  background: radial-gradient(circle at center, rgba(255,255,255,.18) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .05s;
+}
+#flash.pop { opacity: 1; transition: none; }
