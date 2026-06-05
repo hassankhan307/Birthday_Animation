@@ -91,10 +91,8 @@ Letter.prototype.draw = function () {
     ctx.fillStyle = this.color;
   }
 
-  if (state === "explosion") {
-    if (Math.random() < 0.2) {
-      particles.push(new Particle(this.x + hw, this.y + hh, this.color));
-    }
+  if (state === "explosion" && Math.random() < 0.2) {
+  particles.push(new Particle(this.x + hw, this.y + hh, this.color));
   }
 
   if (state === "message") {
@@ -134,12 +132,43 @@ for (let i = 0; i < opts.strings.length; i++) {
 // 🔘 BUTTON CONTROL
 // =========================
 document.getElementById("revealBtn").addEventListener("click", () => {
+
+  // 🛑 prevent multiple triggers
+  if (state !== "idle") return;
+
   state = "reveal";
-  document.getElementById("title").innerText = "Get ready...";
-  
-  setTimeout(() => state = "explosion", 2000);
-  setTimeout(() => state = "message", 4000);
-  setTimeout(() => state = "idle", 8000);
+
+  // 🎮 lock UI immediately (important)
+  const btn = document.getElementById("revealBtn");
+  const title = document.getElementById("title");
+
+  btn.style.opacity = "0";
+  btn.style.pointerEvents = "none";
+  btn.style.transform = "scale(0.8)";
+
+  title.innerText = "Initializing surprise...";
+
+  // 🎬 cinematic sequence control
+  setTimeout(() => {
+    state = "explosion";
+    title.innerText = "🎆";
+  }, 2000);
+
+  setTimeout(() => {
+    state = "message";
+    title.innerText = "Happy Birthday!";
+  }, 4500);
+
+  setTimeout(() => {
+    state = "idle";
+
+    // ♻️ restore UI for replay
+    btn.style.opacity = "1";
+    btn.style.pointerEvents = "auto";
+    btn.style.transform = "scale(1)";
+
+    title.innerText = "Ready for your surprise?";
+  }, 8000);
 });
 
 // =========================
@@ -182,5 +211,5 @@ function animate() {
   for (let p of particles) p.update();
   ctx.globalCompositeOperation = "source-over";
 }
-
+particles = particles.filter(p => p.life > 0);
 animate();
