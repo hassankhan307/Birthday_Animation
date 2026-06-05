@@ -1,27 +1,83 @@
-canvas {
-	position: absolute;
-	top: 0;
-	left: 0;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-p {
-	margin: 0 0;
-	position: absolute;
-	font: 16px Verdana;
-	color: #eee;
-	height: 25px;
-	top: calc( 100vh - 30px );
-	text-shadow: 0 0 2px white;
-}
-p a {
-	text-decoration: none;
-	color: #aaa;
-}
-span {
-	font-size: 11px;
-}
-p > a:first-of-type {
-	font-size: 20px;
-}
+
 body {
-	overflow: hidden;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #050816, #000000);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* 🎨 Main animation canvas */
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 🧠 Overlay UI layer (future text + buttons) */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ✨ Main title */
+#title {
+  font-size: clamp(2.5rem, 6vw, 6rem);
+  color: transparent;
+  -webkit-text-stroke: 2px #00e5ff;
+  text-shadow:
+    0 0 10px #00e5ff,
+    0 0 30px #8b5cf6,
+    0 0 60px #ff00ff;
+  letter-spacing: 2px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 1s ease;
+}
+
+/* 💬 Message text */
+#message {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: rgba(255,255,255,0.8);
+  max-width: 600px;
+  text-align: center;
+  opacity: 0;
+  transition: 1s ease;
+}
+
+/* 🎁 Button */
+#revealBtn {
+  margin-top: 30px;
+  padding: 12px 24px;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  background: rgba(255,255,255,0.05);
+  color: white;
+  border-radius: 12px;
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  transition: 0.3s ease;
+}
+
+#revealBtn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #00e5ff;
+}
+
+/* ❌ remove old paragraph styling entirely */
+p {
+  display: none;
 }
